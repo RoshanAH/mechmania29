@@ -264,7 +264,7 @@ public class Starterpack {
                     GameState gameState = null;
 
                     if (!phase.equals("CHOOSE_CLASSES") && !phase.equals("FINISH")) {
-                        gameState = objectMapper.treeToValue(message.get(""), GameState.class);
+                        gameState = objectMapper.treeToValue(message, GameState.class);
                     }
 
                     Strategy strategy = null;
