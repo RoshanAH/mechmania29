@@ -39,7 +39,7 @@ public class SimpleZombieStrategy extends Strategy {
                 int closestHumanDistance = Integer.MAX_VALUE;
 
                 for (Character c : gameState.characters().values()) {
-                    if (c.zombie()) {
+                    if (c.isZombie()) {
                         continue;
                     }
 
