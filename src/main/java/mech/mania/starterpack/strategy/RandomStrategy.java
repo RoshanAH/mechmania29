@@ -1,13 +1,16 @@
 package mech.mania.starterpack.strategy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import mech.mania.starterpack.game.GameState;
 import mech.mania.starterpack.game.character.MoveAction;
 import mech.mania.starterpack.game.character.action.AbilityAction;
 import mech.mania.starterpack.game.character.action.AttackAction;
 import mech.mania.starterpack.game.character.action.CharacterClassType;
-
-import java.util.*;
 
 /**
  * Random strategy implementation for bot decision-making.
@@ -64,11 +67,11 @@ public class RandomStrategy extends Strategy {
             GameState gameState
     ) {
         List<AttackAction> choices = new ArrayList<>();
-
+        
         for (Map.Entry<String, List<AttackAction>> entry : possibleAttacks.entrySet()) {
             String characterId = entry.getKey();
             List<AttackAction> attacks = entry.getValue();
-
+            
             // NOTE: You will have to handle the case where there is no attack to be made, such as when stunned
             if (!attacks.isEmpty()) {
                 choices.add(attacks.get(random.nextInt(attacks.size())));

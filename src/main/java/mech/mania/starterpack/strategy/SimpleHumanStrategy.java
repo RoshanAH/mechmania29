@@ -49,7 +49,7 @@ public class SimpleHumanStrategy extends Strategy {
 
                 // Find the closest zombie
                 for (Character c : gameState.characters().values()) {
-                    if (!c.isZombie()) {
+                    if (!c.zombie()) {
                         continue;  // Ignore fellow humans
                     }
 

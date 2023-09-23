@@ -8,8 +8,8 @@ import mech.mania.starterpack.game.util.Position;
 public record Character(
         String id,
         Position position,
-        boolean isZombie,
+        boolean zombie,
         CharacterClassType classType,
         int health,
-        boolean isStunned
+        boolean stunned
 ) {}

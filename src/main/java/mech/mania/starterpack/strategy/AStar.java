@@ -14,12 +14,9 @@ import mech.mania.starterpack.game.terrain.Terrain;
 
 public class AStar {
 
-  public static int[][] terrainMap = new int[100][100]; 
-  private static boolean terrainMapped = false; // TODO get rid of this and have it update evey time it is bots turn
-
-  public static Position nextMove(Position start, Position end, int speed, GameState state){
-
-    if (dist(start, end) <= speed) return end; // if we are already close just go there lol
+  public static List<Position> path(Position start, Position end, GameState state, Map<Position, Integer> terrain){
+    
+    if (start.equals(end)) return List.of(start);
 
     List<Node> queue = new ArrayList<>();
     Set<Position> explored = new HashSet<>();
@@ -32,11 +29,10 @@ public class AStar {
 
     while (true) { 
       final Node head = queue.get(0);
-      if (dist(head.pos, end) <= speed) // we are able to jump to the end
+      if (head.pos.equals(end)) // we are able to jump to the end
         break;
 
-      Set<Node> neighbors = head.neighbors(speed);
-
+      Set<Node> neighbors = head.neighbors(terrain);
 
       for(Node n : neighbors){
         if (explored.contains(n.pos)) continue;
@@ -57,14 +53,16 @@ public class AStar {
       queue.remove(head);
     }
 
+    List<Position> out = new ArrayList<>();
+
     Node current = queue.get(0);
-    Node lookbehind = current.previous;
-    while(lookbehind.previous != null){
-      current = lookbehind;
-      lookbehind = current.previous;
+    while(current != null){
+      out.add(0, current.pos);
+      current = current.previous;
     }
 
-    return current.pos;
+    return out;
+
   }
 
   public static void insert(List<Node> list, Node newNode){ // inserts the node in the correct order to make sure the list stays sorted
@@ -83,68 +81,19 @@ public class AStar {
     return Math.abs(first.x() - second.x()) + Math.abs(first.y() - second.y());
   }
 
-  public static Set<Position> floodFill(Position start, int speed){ 
-    final Set<Position> inside = new HashSet<>();
-    final List<Position> queue = new ArrayList<>();
-    
-    queue.add(start);
+  public static Map<Position, Integer> mapTerrain(GameState state){
+    Map<Position, Integer> out = new HashMap<>();
 
-    while (!queue.isEmpty()){
-      final Position head = queue.get(0);
-      inside.add(head);
-      queue.remove(0);
-
-      for(Position neighbor : immediateNeighbors(head)){
-        if (!inside.contains(neighbor) && dist(start, neighbor) <= speed){
-          queue.add(neighbor);
-        }
-      }
-    }
-    
-    inside.remove(start); // the start point is not a neighbor
-    return inside;
-  }
-
-  public static Set<Position> immediateNeighbors(Position pos){
-    final Set<Position> out = new HashSet<>();
-
-    if (pos.y() > 0) { // north
-      final Position neighbor = new Position(pos.x(), pos.y() - 1);
-      if (terrainMap[neighbor.y()][neighbor.x()] == 0)
-        out.add(neighbor);
-    }
-    if (pos.x() > 0) { // east
-      final Position neighbor = new Position(pos.x() - 1, pos.y());
-      if (terrainMap[neighbor.y()][neighbor.x()] == 0)
-        out.add(neighbor);
-    }
-    if (pos.y() < 99) { // south
-      final Position neighbor = new Position(pos.x(), pos.y() + 1);
-      if (terrainMap[neighbor.y()][neighbor.x()] == 0)
-        out.add(neighbor);
-    }
-    if (pos.x() < 99) { // west
-      final Position neighbor = new Position(pos.x() + 1, pos.y());
-      if (terrainMap[neighbor.y()][neighbor.x()] == 0)
-        out.add(neighbor);
+    for (Terrain t : state.terrains().values()){
+      final int health = t.health() == -1? Integer.MAX_VALUE : t.health();
+      out.put(t.position(), health);
     }
 
     return out;
   }
 
-  public static void mapTerrain(GameState state){
-    if (terrainMapped) return; // only map once
-
-    for (Terrain t : state.terrains().values()){
-      terrainMap[t.position().y()][t.position().x()] = t.health();
-    }
-
-    terrainMapped = true; 
-  }
-
   private static class Node {
     final Position pos; 
-    // final Map<Position, Integer> terrainChanges = new HashMap<>(); TODO
 
     final int distance;
     final int heuristic;
@@ -159,12 +108,28 @@ public class AStar {
       this.heuristic = dist(pos, end);
     }
 
-    Set<Node> neighbors(int speed){ 
-      final Set<Position> positions = floodFill(pos, speed);
+    Set<Node> neighbors(Map<Position, Integer> terrain){ 
       final Set<Node> out = new HashSet<>();
-      for (Position p : positions){
-        final Node newNode = new Node(p, end, this, distance + 1);
-        out.add(newNode);
+
+      if (pos.y() > 0) { // north
+        final Position neighbor = new Position(pos.x(), pos.y() - 1);
+        final Integer health = terrain.get(neighbor);
+        out.add(new Node(neighbor, end, this, distance + 1 + (health == null? 0 : health)));
+      }
+      if (pos.x() > 0) { // east
+        final Position neighbor = new Position(pos.x() - 1, pos.y());
+        final Integer health = terrain.get(neighbor);
+        out.add(new Node(neighbor, end, this, distance + 1 + (health == null? 0 : health)));
+      }
+      if (pos.y() < 99) { // south
+        final Position neighbor = new Position(pos.x(), pos.y() + 1);
+        final Integer health = terrain.get(neighbor);
+        out.add(new Node(neighbor, end, this, distance + 1 + (health == null? 0 : health)));
+      }
+      if (pos.x() < 99) { // west
+        final Position neighbor = new Position(pos.x() + 1, pos.y());
+        final Integer health = terrain.get(neighbor);
+        out.add(new Node(neighbor, end, this, distance + 1 + (health == null? 0 : health)));
       }
 
       return out;
