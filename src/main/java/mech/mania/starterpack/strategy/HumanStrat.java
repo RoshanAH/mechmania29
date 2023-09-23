@@ -1,6 +1,5 @@
 package mech.mania.starterpack.strategy;
 
-
 import mech.mania.starterpack.game.GameState;
 import mech.mania.starterpack.game.character.MoveAction;
 import mech.mania.starterpack.game.character.action.AbilityAction;
@@ -9,10 +8,7 @@ import mech.mania.starterpack.game.character.action.CharacterClassType;
 
 import java.util.*;
 
-/**
- * Random strategy implementation for bot decision-making.
- */
-public class RandomStrategy extends Strategy {
+public class HumanStrat extends Strategy {
     private final Random random = new Random();
 
     @Override
