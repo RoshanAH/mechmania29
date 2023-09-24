@@ -7,8 +7,10 @@ public class ChooseStrategy {
         //
         // For example:
         if (isZombie) {
+            // return new SimpleZombieStrategy(); // TODO CHANGE THIS BACK
             return new ZombieStrat();
         } else {
+            // return new SimpleHumanStrategy(); // TODO CHANGE THIS BACK
             return new HumanStrat();
         }
     }
